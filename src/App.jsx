@@ -4,6 +4,8 @@ import Usuarios from './pages/Usuarios'
 import Notas from './pages/Notas'
 import Config from './pages/Config'
 import Login from './pages/Login'
+import Reserva from "./pages/Reserva";
+
 
 export default function App(){
   const [auth, setAuth] = useState(localStorage.getItem('panel_auth') === 'true')
@@ -25,6 +27,8 @@ export default function App(){
         <button className="btn bg-white border" onClick={()=>setSection('usuarios')}>Usuarios</button>
         <button className="btn bg-white border" onClick={()=>setSection('notas')}>Notas</button>
         <button className="btn bg-white border ml-auto" onClick={()=>setSection('config')}>Config</button>
+        <button className="btn bg-white border" onClick={()=>setSection('reserva')}>Nueva Reserva</button>
+
       </nav>
 
       <main>
@@ -32,6 +36,8 @@ export default function App(){
         {section === 'usuarios' && <Usuarios />}
         {section === 'notas' && <Notas />}
         {section === 'config' && <Config />}
+        {section === 'reserva' && <Reserva />}
+
       </main>
     </div>
   )
