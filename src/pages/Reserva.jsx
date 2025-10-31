@@ -39,6 +39,18 @@ export default function Reserva() {
   }
 
   useEffect(generarHoras, [fechaSel])
+  useEffect(() => {
+  const cargarDisponibilidad = async () => {
+    if (!fisioSel || !fechaSel) return
+    const res = await fetch(`${API_URL}/api/bookings/check-day?fisio=${encodeURIComponent(fisioSel)}&date=${fechaSel}`)
+    const data = await res.json()
+    if (data.bookedHours) {
+      setHorasDisponibles(prev => prev.filter(h => !data.bookedHours.includes(h)))
+    }
+  }
+  cargarDisponibilidad()
+}, [fisioSel, fechaSel])
+
 
   const crearReserva = async () => {
   if (!servicioSel || !fisioSel || !fechaSel || !horaSel) {
