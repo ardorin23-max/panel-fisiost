@@ -24,7 +24,7 @@ export default function Reserva() {
       .catch(console.error)
   }, [])
 
-  // Generar horarios de 45 min (ejemplo: 09:00 a 20:00)
+  // Generar horarios de 45 min (de 09:00 a 20:00)
   const generarHoras = () => {
     if (!fechaSel) return
     const horas = []
@@ -42,11 +42,21 @@ export default function Reserva() {
 
   const crearReserva = async () => {
     if (!servicioSel || !fisioSel || !fechaSel || !horaSel) {
-      setMensaje('Completa todos los campos antes de reservar.')
+      setMensaje('⚠️ Completa todos los campos antes de reservar.')
       return
     }
 
     try {
+      // 1️⃣ Verificar si ya hay una reserva en ese horario
+      const checkRes = await fetch(`${API_URL}/api/bookings/check?fisio=${fisioSel}&date=${fechaSel}&time=${horaSel}`)
+      const checkData = await checkRes.json()
+
+      if (checkData.exists) {
+        setMensaje('⛔ Ese fisioterapeuta ya tiene una reserva en esa hora.')
+        return
+      }
+
+      // 2️⃣ Si no hay conflicto, crear la reserva
       const res = await fetch(`${API_URL}/api/bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
