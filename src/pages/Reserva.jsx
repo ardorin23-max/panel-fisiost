@@ -41,10 +41,51 @@ export default function Reserva() {
   useEffect(generarHoras, [fechaSel])
 
   const crearReserva = async () => {
-    if (!servicioSel || !fisioSel || !fechaSel || !horaSel) {
-      setMensaje('⚠️ Completa todos los campos antes de reservar.')
+  if (!servicioSel || !fisioSel || !fechaSel || !horaSel) {
+    setMensaje('⚠️ Completa todos los campos antes de reservar.')
+    return
+  }
+
+  try {
+    // 🧩 1️⃣ Verificar si ya hay una reserva
+    const checkUrl = `${API_URL}/api/bookings/check?fisio=${encodeURIComponent(fisioSel)}&date=${fechaSel}&time=${horaSel}`
+    const checkRes = await fetch(checkUrl)
+    if (!checkRes.ok) throw new Error('Error al comprobar disponibilidad')
+
+    const checkData = await checkRes.json()
+    if (checkData.exists) {
+      setMensaje(`⛔ ${fisioSel} ya tiene una reserva a esa hora.`)
       return
     }
+
+    // 🧩 2️⃣ Crear la reserva
+    const res = await fetch(`${API_URL}/api/bookings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service: servicioSel,
+        fisio: fisioSel,
+        date: fechaSel,
+        time: horaSel
+      })
+    })
+
+    const data = await res.json()
+    if (res.ok) {
+      setMensaje('✅ Reserva creada con éxito y añadida al calendario.')
+      setServicioSel('')
+      setFisioSel('')
+      setFechaSel('')
+      setHoraSel('')
+    } else {
+      setMensaje('⚠️ Error al crear reserva: ' + (data.message || 'Intenta de nuevo'))
+    }
+  } catch (err) {
+    console.error(err)
+    setMensaje('❌ No se pudo conectar con el servidor.')
+  }
+}
+
 
     try {
       // 1️⃣ Verificar si ya hay una reserva en ese horario
